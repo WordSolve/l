@@ -39,20 +39,55 @@ tkinter (usually included with Python)
 
 ## 🚀 Quick Start Installation
 
-### 1. Clone the Repository
+### Windows (Chocolatey - Recommended)
+
+**Automated installation with Chocolatey package manager for smooth operation:**
+
+1. **Right-click PowerShell** and select "Run as Administrator"
+2. Navigate to the dashboard directory:
+   ```powershell
+   cd C:\path\to\l
+   ```
+3. Run the Chocolatey installation script:
+   ```powershell
+   .\chocolatey_install.ps1
+   ```
+
+This will automatically install:
+- Python 3.11+
+- All Python dependencies (NumPy, Requests)
+- Git (optional)
+- Visual C++ Redistributables
+
+**Or use the launcher:**
+```cmd
+start_dashboard.bat
+```
+
+See **[CHOCOLATEY_SETUP.md](CHOCOLATEY_SETUP.md)** for detailed Windows setup guide.
+
+### Linux/macOS
+
+1. **Clone the Repository**
 ```bash
 git clone https://github.com/WordSolve/l.git
 cd l
 ```
 
-### 2. Install Dependencies
+2. **Install Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run the Dashboard
+3. **Run the Dashboard**
 ```bash
 python miner_dashboard_ui.py
+```
+
+Or use the launcher:
+```bash
+chmod +x start_dashboard.sh
+./start_dashboard.sh
 ```
 
 ## 📖 Detailed Implementation Guide
