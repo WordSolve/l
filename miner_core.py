@@ -9,6 +9,7 @@ from typing import Dict, List, Tuple
 import time
 import hashlib
 from datetime import datetime
+from price_fetcher import LivePriceFetcher
 
 
 class QuantumComputationalEngine:
@@ -315,6 +316,9 @@ class MinerDashboardCore:
         self.rdc_coin = RedCodeCoin()
         self.cypher_layer = CypherCommunicationLayer()
         
+        # Initialize live price fetcher
+        self.price_fetcher = LivePriceFetcher()
+        
         # Get expected hash rates from config
         btc_hashrate = self.config.get('miners', {}).get('bitcoin', {}).get('expected_hashrate', 25000000)
         xmr_hashrate = self.config.get('miners', {}).get('monero', {}).get('expected_hashrate', 5000)
@@ -325,14 +329,8 @@ class MinerDashboardCore:
         self.monero_miner = MoneroMiner(self.quantum_engine, xmr_hashrate)
         self.redcode_miner = RedCodeMiner(self.quantum_engine, self.rdc_coin, rdc_hashrate)
         
-        # Set real prices from config
-        market_data = self.config.get('coin_market_data', {})
-        if 'bitcoin' in market_data:
-            self.bitcoin_miner.set_price(market_data['bitcoin'].get('usd_price', 42000.0))
-        if 'monero' in market_data:
-            self.monero_miner.set_price(market_data['monero'].get('usd_price', 165.0))
-        if 'redcode' in market_data:
-            self.redcode_miner.set_price(market_data['redcode'].get('usd_price', 1.0))
+        # Fetch live prices from CoinMarketCap, Coinbase, and Binance
+        self.update_live_prices()
         
         self.miners = {
             'bitcoin': self.bitcoin_miner,
@@ -342,6 +340,24 @@ class MinerDashboardCore:
         
         self.running = False
         self.start_time = None
+    
+    def update_live_prices(self):
+        """Update cryptocurrency prices from live sources"""
+        try:
+            live_prices = self.price_fetcher.get_all_prices(use_cache=True)
+            self.bitcoin_miner.set_price(live_prices.get('bitcoin', 42000.0))
+            self.monero_miner.set_price(live_prices.get('monero', 165.0))
+            self.redcode_miner.set_price(live_prices.get('redcode', 1.0))
+        except Exception as e:
+            print(f"Error updating live prices: {e}")
+            # Fallback to config prices if live fetch fails
+            market_data = self.config.get('coin_market_data', {})
+            if 'bitcoin' in market_data:
+                self.bitcoin_miner.set_price(market_data['bitcoin'].get('usd_price', 42000.0))
+            if 'monero' in market_data:
+                self.monero_miner.set_price(market_data['monero'].get('usd_price', 165.0))
+            if 'redcode' in market_data:
+                self.redcode_miner.set_price(market_data['redcode'].get('usd_price', 1.0))
         
     def _load_config(self) -> dict:
         """Load configuration from config.json"""
@@ -415,6 +431,10 @@ class MinerDashboardCore:
         """Get complete dashboard state for UI"""
         market_data = self.config.get('coin_market_data', {})
         
+        # Periodically update live prices (every 60 seconds)
+        if self.running:
+            self.update_live_prices()
+        
         return {
             'rdc_coin': {
                 'symbol': self.rdc_coin.symbol,
@@ -442,7 +462,12 @@ class MinerDashboardCore:
             },
             'running': self.running,
             'config': self.config,
-            'market_data': market_data
+            'market_data': market_data,
+            'price_sources': {
+                'last_update': self.price_fetcher.last_update.isoformat() if self.price_fetcher.last_update else None,
+                'sources': ['CoinMarketCap', 'Coinbase', 'Binance'],
+                'cache_duration': self.price_fetcher.cache_duration
+            }
         }
 
 

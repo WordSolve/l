@@ -252,6 +252,25 @@ class MinerDashboardUI:
         )
         self.usd_value.pack(pady=5)
         
+        # Price Sources
+        price_source_label = tk.Label(
+            bank_frame,
+            text="💱 Live Price Sources:",
+            font=('Arial', 9),
+            fg='#8b949e',
+            bg='#0d1117'
+        )
+        price_source_label.pack(pady=5)
+        
+        self.price_sources_value = tk.Label(
+            bank_frame,
+            text="CoinMarketCap, Coinbase, Binance",
+            font=('Arial', 8),
+            fg='#58a6ff',
+            bg='#0d1117'
+        )
+        self.price_sources_value.pack()
+        
     def setup_quantum_panel(self, parent):
         """Setup Quantum Computational State panel"""
         label = tk.Label(
@@ -517,6 +536,13 @@ class MinerDashboardUI:
             self.balance_value.config(text=f"{balance:,.2f} RDC")
             self.rdc_price_value.config(text=f"${state['rdc_coin'].get('usd_price', 1.0):.2f} USD")
             self.usd_value.config(text=f"${usd_value:,.2f} USD")
+            
+            # Update price sources info
+            price_sources = state.get('price_sources', {})
+            if price_sources.get('last_update'):
+                self.price_sources_value.config(
+                    text=f"Live: {', '.join(price_sources.get('sources', []))}"
+                )
             
             # Update quantum state with activation status
             quantum = state['quantum_state']
