@@ -8,6 +8,7 @@ import numpy as np
 from typing import Dict, List, Tuple
 import time
 import hashlib
+import re
 from datetime import datetime
 from price_fetcher import LivePriceFetcher
 
@@ -18,6 +19,18 @@ try:
 except ImportError:
     INTEGRATIONS_AVAILABLE = False
     print("Warning: Wallet integration modules not available")
+
+
+# Constants for hashrate parsing
+HASHRATE_MULTIPLIERS = {
+    'H/S': 1,
+    'KH/S': 1000,
+    'MH/S': 1000000,
+    'GH/S': 1000000000,
+    'TH/S': 1000000000000,
+    'PH/S': 1000000000000000,
+    'EH/S': 1000000000000000000,
+}
 
 
 class QuantumComputationalEngine:
@@ -240,8 +253,12 @@ class QuantumMiner:
         
         hashrate_str = str(self.network_hashrate).upper()
         
+        # Handle special case for RedCode
+        if hashrate_str == 'COMPUTING':
+            # Use a default estimated hashrate for RedCode
+            return 1000000000.0  # 1 GH/s default
+        
         # Extract number and unit
-        import re
         match = re.match(r'([\d.]+)\s*([A-Z]+)', hashrate_str)
         if not match:
             return 0.0
@@ -249,18 +266,8 @@ class QuantumMiner:
         number = float(match.group(1))
         unit = match.group(2)
         
-        # Convert to H/s
-        multipliers = {
-            'H/S': 1,
-            'KH/S': 1000,
-            'MH/S': 1000000,
-            'GH/S': 1000000000,
-            'TH/S': 1000000000000,
-            'PH/S': 1000000000000000,
-            'EH/S': 1000000000000000000,
-        }
-        
-        return number * multipliers.get(unit, 0.0)
+        # Convert to H/s using the constant multipliers
+        return number * HASHRATE_MULTIPLIERS.get(unit, 0.0)
 
 
 class BitcoinMiner(QuantumMiner):
@@ -569,14 +576,19 @@ class MinerDashboardCore:
         Returns:
             Dict with hash value tracking for bitcoin, monero, and redcode
         """
+        # Calculate once for each miner to avoid redundant calls
+        btc_tracking = self.bitcoin_miner.calculate_value_per_hash()
+        xmr_tracking = self.monero_miner.calculate_value_per_hash()
+        rdc_tracking = self.redcode_miner.calculate_value_per_hash()
+        
         return {
-            'bitcoin': self.bitcoin_miner.calculate_value_per_hash(),
-            'monero': self.monero_miner.calculate_value_per_hash(),
-            'redcode': self.redcode_miner.calculate_value_per_hash(),
+            'bitcoin': btc_tracking,
+            'monero': xmr_tracking,
+            'redcode': rdc_tracking,
             'summary': {
-                'bitcoin_value_per_hash': self.bitcoin_miner.calculate_value_per_hash()['value_per_hash_formatted'],
-                'monero_value_per_hash': self.monero_miner.calculate_value_per_hash()['value_per_hash_formatted'],
-                'redcode_value_per_hash': self.redcode_miner.calculate_value_per_hash()['value_per_hash_formatted'],
+                'bitcoin_value_per_hash': btc_tracking['value_per_hash_formatted'],
+                'monero_value_per_hash': xmr_tracking['value_per_hash_formatted'],
+                'redcode_value_per_hash': rdc_tracking['value_per_hash_formatted'],
             }
         }
         
