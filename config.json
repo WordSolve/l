@@ -1,0 +1,49 @@
+{
+  "redcode_coin": {
+    "name": "RedCode Coin",
+    "symbol": "RDC",
+    "total_supply": 1000000000,
+    "decimals": 8
+  },
+  "quantum_dimensions": {
+    "computational_5d": true,
+    "computational_10d": true,
+    "computational_100d": true,
+    "computational_1000d": true,
+    "tornado_convergence_10d": true,
+    "tornado_convergence_100d": true
+  },
+  "miners": {
+    "bitcoin": {
+      "enabled": true,
+      "default_rate": 0.0,
+      "computational_multiplier": 1.0
+    },
+    "monero": {
+      "enabled": true,
+      "default_rate": 0.0,
+      "computational_multiplier": 1.0
+    },
+    "redcode": {
+      "enabled": true,
+      "default_rate": 0.0,
+      "computational_multiplier": 1.0,
+      "quantum_enabled": true
+    }
+  },
+  "fractal_tree": {
+    "dimensions": 100,
+    "hash_multiplier": 1.0
+  },
+  "waterfall_technology": {
+    "dimensions": 1000,
+    "flow_rate": 1.0
+  },
+  "monero_wallet": {
+    "gui_connection": {
+      "host": "127.0.0.1",
+      "port": 18081,
+      "rpc_port": 18082
+    }
+  }
+}
