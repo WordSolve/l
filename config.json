@@ -3,7 +3,72 @@
     "name": "RedCode Coin",
     "symbol": "RDC",
     "total_supply": 1000000000,
-    "decimals": 8
+    "decimals": 8,
+    "usd_value": 1.00
+  },
+  "coin_market_data": {
+    "bitcoin": {
+      "symbol": "BTC",
+      "usd_price": 42000.00,
+      "network_hashrate": "400 EH/s",
+      "algorithm": "SHA-256",
+      "block_reward": 6.25,
+      "difficulty": 62000000000000
+    },
+    "monero": {
+      "symbol": "XMR",
+      "usd_price": 165.00,
+      "network_hashrate": "2.8 GH/s",
+      "algorithm": "RandomX",
+      "block_reward": 0.6,
+      "difficulty": 280000000000
+    },
+    "redcode": {
+      "symbol": "RDC",
+      "usd_price": 1.00,
+      "network_hashrate": "Computing",
+      "algorithm": "QuantumProof",
+      "block_reward": 50.0,
+      "difficulty": 1000000
+    }
+  },
+  "pool_configurations": {
+    "f2pool_bitcoin": {
+      "name": "F2Pool",
+      "url": "stratum+tcp://btc.f2pool.com:3333",
+      "backup_url": "stratum+tcp://btc.f2pool.com:1314",
+      "username_format": "wallet_address.worker_name",
+      "algorithm": "SHA-256",
+      "fee": 2.5,
+      "min_payout": 0.005
+    },
+    "supportxmr_monero": {
+      "name": "SupportXMR",
+      "url": "pool.supportxmr.com:3333",
+      "backup_url": "pool.supportxmr.com:5555",
+      "tls_url": "pool.supportxmr.com:443",
+      "username_format": "wallet_address",
+      "algorithm": "RandomX",
+      "fee": 0.6,
+      "min_payout": 0.1
+    }
+  },
+  "realistic_hashrates": {
+    "bitcoin_cpu": {
+      "typical_range": "10-50 MH/s",
+      "cpu_miner": 25000000,
+      "note": "CPU mining Bitcoin is not profitable"
+    },
+    "monero_cpu": {
+      "typical_range": "1000-10000 H/s",
+      "cpu_miner": 5000,
+      "note": "RandomX optimized for CPU mining"
+    },
+    "redcode_cpu": {
+      "typical_range": "1000-20000 H/s",
+      "cpu_miner": 10000,
+      "note": "Quantum-enhanced computational mining"
+    }
   },
   "experiment_features": {
     "real_mining_mode": false,
@@ -13,25 +78,32 @@
     "quantum_1000d_waterfall": false,
     "bitcoin_real_network": false,
     "monero_real_network": false,
-    "redcode_quantum_boost": false
+    "redcode_quantum_boost": false,
+    "show_real_prices": true,
+    "use_realistic_hashrates": true
   },
   "miners": {
     "bitcoin": {
       "enabled": true,
       "simulated": true,
-      "real_pool_url": "",
-      "real_wallet_address": ""
+      "real_pool_url": "stratum+tcp://btc.f2pool.com:3333",
+      "real_wallet_address": "",
+      "pool": "f2pool",
+      "expected_hashrate": 25000000
     },
     "monero": {
       "enabled": true,
       "simulated": true,
-      "real_pool_url": "",
-      "real_wallet_address": ""
+      "real_pool_url": "pool.supportxmr.com:3333",
+      "real_wallet_address": "",
+      "pool": "supportxmr",
+      "expected_hashrate": 5000
     },
     "redcode": {
       "enabled": true,
       "simulated": true,
-      "quantum_boost_active": false
+      "quantum_boost_active": false,
+      "expected_hashrate": 10000
     }
   },
   "fractal_tree": {

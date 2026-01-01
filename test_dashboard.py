@@ -169,9 +169,22 @@ def test_config_file():
         assert 'experiment_features' in config, "Config should have experiment features"
         assert 'miners' in config, "Config should have miner config"
         assert 'monero_wallet' in config, "Config should have Monero wallet config"
+        assert 'coin_market_data' in config, "Config should have market data"
+        assert 'pool_configurations' in config, "Config should have pool configs"
         
         # Verify RDC config
         assert config['redcode_coin']['total_supply'] == 1000000000
+        assert config['redcode_coin']['usd_value'] == 1.00
+        
+        # Verify market data
+        assert 'bitcoin' in config['coin_market_data']
+        assert 'monero' in config['coin_market_data']
+        assert 'redcode' in config['coin_market_data']
+        assert config['coin_market_data']['redcode']['usd_price'] == 1.00
+        
+        # Verify pool configurations
+        assert 'f2pool_bitcoin' in config['pool_configurations']
+        assert 'supportxmr_monero' in config['pool_configurations']
         
         # Verify experiment features structure
         exp_features = config['experiment_features']

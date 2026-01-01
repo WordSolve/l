@@ -88,25 +88,34 @@ class MinerDashboardUI:
         label.pack(pady=10)
         
         # Bitcoin Miner
-        self.btc_frame = self.create_miner_frame(parent, "Bitcoin (BTC) - SIMULATED", "#f7931a")
+        self.btc_frame = self.create_miner_frame(parent, "Bitcoin (BTC) - F2Pool", "#f7931a")
+        self.btc_price = self.create_stat_label(self.btc_frame, "Price:", "$0.00")
         self.btc_mode = self.create_stat_label(self.btc_frame, "Mode:", "SIMULATION")
         self.btc_hashrate = self.create_stat_label(self.btc_frame, "Hash Rate:", "0 H/s")
+        self.btc_expected = self.create_stat_label(self.btc_frame, "Expected Rate:", "0 H/s")
+        self.btc_pool = self.create_stat_label(self.btc_frame, "Pool:", "F2Pool")
         self.btc_real_rate = self.create_stat_label(self.btc_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.btc_shares = self.create_stat_label(self.btc_frame, "Shares:", "0")
         self.btc_hashes = self.create_stat_label(self.btc_frame, "Total Hashes:", "0")
         
         # Monero Miner
-        self.xmr_frame = self.create_miner_frame(parent, "Monero (XMR) - SIMULATED", "#ff6600")
+        self.xmr_frame = self.create_miner_frame(parent, "Monero (XMR) - SupportXMR", "#ff6600")
+        self.xmr_price = self.create_stat_label(self.xmr_frame, "Price:", "$0.00")
         self.xmr_mode = self.create_stat_label(self.xmr_frame, "Mode:", "SIMULATION")
         self.xmr_hashrate = self.create_stat_label(self.xmr_frame, "Hash Rate:", "0 H/s")
+        self.xmr_expected = self.create_stat_label(self.xmr_frame, "Expected Rate:", "0 H/s")
+        self.xmr_pool = self.create_stat_label(self.xmr_frame, "Pool:", "SupportXMR")
         self.xmr_real_rate = self.create_stat_label(self.xmr_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.xmr_shares = self.create_stat_label(self.xmr_frame, "Shares:", "0")
         self.xmr_hashes = self.create_stat_label(self.xmr_frame, "Total Hashes:", "0")
         
         # RedCode Miner
-        self.rdc_miner_frame = self.create_miner_frame(parent, "RedCode (RDC) - SIMULATED", "#00ff88")
+        self.rdc_miner_frame = self.create_miner_frame(parent, "RedCode (RDC) - $1.00", "#00ff88")
+        self.rdc_price = self.create_stat_label(self.rdc_miner_frame, "Price:", "$1.00")
         self.rdc_mode = self.create_stat_label(self.rdc_miner_frame, "Mode:", "SIMULATION")
         self.rdc_hashrate = self.create_stat_label(self.rdc_miner_frame, "Hash Rate:", "0 H/s")
+        self.rdc_expected = self.create_stat_label(self.rdc_miner_frame, "Expected Rate:", "0 H/s")
+        self.rdc_value = self.create_stat_label(self.rdc_miner_frame, "Mined Value:", "$0.00")
         self.rdc_real_rate = self.create_stat_label(self.rdc_miner_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.rdc_quantum_boost = self.create_stat_label(self.rdc_miner_frame, "Quantum Boost:", "NOT ACTIVATED")
         self.rdc_shares = self.create_stat_label(self.rdc_miner_frame, "Shares:", "0")
@@ -186,6 +195,25 @@ class MinerDashboardUI:
         )
         self.supply_value.pack()
         
+        # RDC Price
+        price_label = tk.Label(
+            bank_frame,
+            text="RDC Price:",
+            font=('Arial', 11),
+            fg='#8b949e',
+            bg='#0d1117'
+        )
+        price_label.pack(pady=5)
+        
+        self.rdc_price_value = tk.Label(
+            bank_frame,
+            text="$1.00 USD",
+            font=('Arial', 12, 'bold'),
+            fg='#00ff88',
+            bg='#0d1117'
+        )
+        self.rdc_price_value.pack()
+        
         # Miner Balance
         balance_label = tk.Label(
             bank_frame,
@@ -203,7 +231,26 @@ class MinerDashboardUI:
             fg='#ffffff',
             bg='#0d1117'
         )
-        self.balance_value.pack(pady=5)
+        self.balance_value.pack()
+        
+        # USD Value
+        usd_label = tk.Label(
+            bank_frame,
+            text="USD Value:",
+            font=('Arial', 11),
+            fg='#8b949e',
+            bg='#0d1117'
+        )
+        usd_label.pack(pady=5)
+        
+        self.usd_value = tk.Label(
+            bank_frame,
+            text="$0.00 USD",
+            font=('Arial', 12, 'bold'),
+            fg='#3fb950',
+            bg='#0d1117'
+        )
+        self.usd_value.pack(pady=5)
         
     def setup_quantum_panel(self, parent):
         """Setup Quantum Computational State panel"""
@@ -406,8 +453,11 @@ class MinerDashboardUI:
             # Update Bitcoin stats
             btc = state['miners']['bitcoin']
             btc_simulated = config.get('miners', {}).get('bitcoin', {}).get('simulated', True)
+            self.btc_price.config(text=f"${btc.get('usd_price', 0.0):,.2f} USD")
             self.btc_mode.config(text="SIMULATION" if btc_simulated else "REAL MINING")
             self.btc_hashrate.config(text=f"{btc['hash_rate']:.2f} H/s")
+            self.btc_expected.config(text=f"{btc.get('expected_hashrate', 0):.0f} H/s")
+            self.btc_pool.config(text=btc.get('pool_name', 'F2Pool'))
             
             if experiment.get('bitcoin_real_network', False):
                 self.btc_real_rate.config(text="ACTIVATED", fg='#3fb950')
@@ -420,8 +470,11 @@ class MinerDashboardUI:
             # Update Monero stats
             xmr = state['miners']['monero']
             xmr_simulated = config.get('miners', {}).get('monero', {}).get('simulated', True)
+            self.xmr_price.config(text=f"${xmr.get('usd_price', 0.0):,.2f} USD")
             self.xmr_mode.config(text="SIMULATION" if xmr_simulated else "REAL MINING")
             self.xmr_hashrate.config(text=f"{xmr['hash_rate']:.2f} H/s")
+            self.xmr_expected.config(text=f"{xmr.get('expected_hashrate', 0):.0f} H/s")
+            self.xmr_pool.config(text=xmr.get('pool_name', 'SupportXMR'))
             
             if experiment.get('monero_real_network', False):
                 self.xmr_real_rate.config(text="ACTIVATED", fg='#3fb950')
@@ -434,8 +487,15 @@ class MinerDashboardUI:
             # Update RedCode stats
             rdc = state['miners']['redcode']
             rdc_simulated = config.get('miners', {}).get('redcode', {}).get('simulated', True)
+            self.rdc_price.config(text=f"${rdc.get('usd_price', 1.0):.2f} USD")
             self.rdc_mode.config(text="SIMULATION" if rdc_simulated else "REAL MINING")
             self.rdc_hashrate.config(text=f"{rdc['hash_rate']:.2f} H/s")
+            self.rdc_expected.config(text=f"{rdc.get('expected_hashrate', 0):.0f} H/s")
+            
+            # Calculate mined value
+            balance = state['rdc_coin']['miner_balance']
+            rdc_usd_value = balance * rdc.get('usd_price', 1.0)
+            self.rdc_value.config(text=f"${rdc_usd_value:,.2f} USD")
             
             if experiment.get('redcode_quantum_boost', False):
                 self.rdc_quantum_boost.config(text="ACTIVATED", fg='#3fb950')
@@ -451,9 +511,12 @@ class MinerDashboardUI:
             self.rdc_shares.config(text=str(rdc['shares_found']))
             self.rdc_hashes.config(text=f"{rdc['total_hashes']:,}")
             
-            # Update RDC balance
+            # Update RDC balance and USD value
             balance = state['rdc_coin']['miner_balance']
+            usd_value = state['rdc_coin'].get('usd_value', 0.0)
             self.balance_value.config(text=f"{balance:,.2f} RDC")
+            self.rdc_price_value.config(text=f"${state['rdc_coin'].get('usd_price', 1.0):.2f} USD")
+            self.usd_value.config(text=f"${usd_value:,.2f} USD")
             
             # Update quantum state with activation status
             quantum = state['quantum_state']
