@@ -182,6 +182,85 @@ class QuantumMiner:
         """Calculate USD value of mined coins"""
         self.usd_value_mined = coins_mined * self.usd_price
         return self.usd_value_mined
+    
+    def calculate_value_per_hash(self) -> Dict[str, float]:
+        """
+        Calculate the USD value per hash for experiment tracking.
+        This allows marking each hash with its real-world value.
+        
+        Returns:
+            Dict with value_per_hash_usd, daily_value_estimate, hourly_value_estimate
+        """
+        if self.hash_rate == 0:
+            return {
+                'value_per_hash_usd': 0.0,
+                'value_per_hash_btc': 0.0,
+                'hourly_value_usd': 0.0,
+                'daily_value_usd': 0.0,
+                'monthly_value_usd': 0.0
+            }
+        
+        # Calculate probability of finding a block per hash
+        # This is a simplified model: prob = hash_rate / network_hash_rate
+        # For real mining, this would involve difficulty and target calculations
+        
+        # Estimate network hashrate in H/s (convert from string representation)
+        network_hash_numeric = self._parse_network_hashrate()
+        
+        if network_hash_numeric == 0:
+            # Fallback calculation if network hashrate not available
+            # Use a conservative estimate based on expected rewards
+            value_per_hash = (self.block_reward * self.usd_price) / 1000000000
+        else:
+            # Probability of finding a block with one hash
+            prob_per_hash = 1.0 / network_hash_numeric
+            
+            # Expected value per hash = probability * block_reward * price
+            value_per_hash = prob_per_hash * self.block_reward * self.usd_price
+        
+        # Calculate time-based estimates
+        hashes_per_hour = self.hash_rate * 3600
+        hashes_per_day = self.hash_rate * 86400
+        hashes_per_month = self.hash_rate * 2592000  # 30 days
+        
+        return {
+            'value_per_hash_usd': value_per_hash,
+            'value_per_hash_formatted': f"${value_per_hash:.12f}",
+            'hourly_value_usd': value_per_hash * hashes_per_hour,
+            'daily_value_usd': value_per_hash * hashes_per_day,
+            'monthly_value_usd': value_per_hash * hashes_per_month,
+            'total_hashes': self.total_hashes,
+            'total_value_generated_usd': value_per_hash * self.total_hashes
+        }
+    
+    def _parse_network_hashrate(self) -> float:
+        """Parse network hashrate string to numeric H/s value"""
+        if not hasattr(self, 'network_hashrate') or not self.network_hashrate:
+            return 0.0
+        
+        hashrate_str = str(self.network_hashrate).upper()
+        
+        # Extract number and unit
+        import re
+        match = re.match(r'([\d.]+)\s*([A-Z]+)', hashrate_str)
+        if not match:
+            return 0.0
+        
+        number = float(match.group(1))
+        unit = match.group(2)
+        
+        # Convert to H/s
+        multipliers = {
+            'H/S': 1,
+            'KH/S': 1000,
+            'MH/S': 1000000,
+            'GH/S': 1000000000,
+            'TH/S': 1000000000000,
+            'PH/S': 1000000000000000,
+            'EH/S': 1000000000000000000,
+        }
+        
+        return number * multipliers.get(unit, 0.0)
 
 
 class BitcoinMiner(QuantumMiner):
@@ -481,6 +560,25 @@ class MinerDashboardCore:
         if address is None:
             address = self.redcode_miner.mining_address
         return self.rdc_coin.get_balance(address)
+    
+    def get_hash_value_tracking(self) -> Dict[str, Dict]:
+        """
+        Get USD value per hash for all miners for experiment tracking.
+        This allows marking each hash with its real-world value.
+        
+        Returns:
+            Dict with hash value tracking for bitcoin, monero, and redcode
+        """
+        return {
+            'bitcoin': self.bitcoin_miner.calculate_value_per_hash(),
+            'monero': self.monero_miner.calculate_value_per_hash(),
+            'redcode': self.redcode_miner.calculate_value_per_hash(),
+            'summary': {
+                'bitcoin_value_per_hash': self.bitcoin_miner.calculate_value_per_hash()['value_per_hash_formatted'],
+                'monero_value_per_hash': self.monero_miner.calculate_value_per_hash()['value_per_hash_formatted'],
+                'redcode_value_per_hash': self.redcode_miner.calculate_value_per_hash()['value_per_hash_formatted'],
+            }
+        }
         
     def start_mining(self):
         """Start all mining operations"""
@@ -555,7 +653,8 @@ class MinerDashboardCore:
                     'pool_name': getattr(miner, 'pool_name', 'N/A'),
                     'pool_url': getattr(miner, 'pool_url', 'N/A'),
                     'network_hashrate': getattr(miner, 'network_hashrate', 'N/A'),
-                    'block_reward': getattr(miner, 'block_reward', 0.0)
+                    'block_reward': getattr(miner, 'block_reward', 0.0),
+                    'hash_value_tracking': miner.calculate_value_per_hash()
                 }
                 for name, miner in self.miners.items()
             },

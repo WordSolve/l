@@ -94,9 +94,12 @@ class MinerDashboardUI:
         self.btc_hashrate = self.create_stat_label(self.btc_frame, "Hash Rate:", "0 H/s")
         self.btc_expected = self.create_stat_label(self.btc_frame, "Expected Rate:", "0 H/s")
         self.btc_pool = self.create_stat_label(self.btc_frame, "Pool:", "F2Pool")
+        self.btc_value_per_hash = self.create_stat_label(self.btc_frame, "Value/Hash:", "$0.000000000000")
+        self.btc_daily_value = self.create_stat_label(self.btc_frame, "Daily Est:", "$0.00")
         self.btc_real_rate = self.create_stat_label(self.btc_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.btc_shares = self.create_stat_label(self.btc_frame, "Shares:", "0")
         self.btc_hashes = self.create_stat_label(self.btc_frame, "Total Hashes:", "0")
+        self.btc_total_value = self.create_stat_label(self.btc_frame, "Total Value:", "$0.00")
         
         # Monero Miner
         self.xmr_frame = self.create_miner_frame(parent, "Monero (XMR) - SupportXMR", "#ff6600")
@@ -105,9 +108,12 @@ class MinerDashboardUI:
         self.xmr_hashrate = self.create_stat_label(self.xmr_frame, "Hash Rate:", "0 H/s")
         self.xmr_expected = self.create_stat_label(self.xmr_frame, "Expected Rate:", "0 H/s")
         self.xmr_pool = self.create_stat_label(self.xmr_frame, "Pool:", "SupportXMR")
+        self.xmr_value_per_hash = self.create_stat_label(self.xmr_frame, "Value/Hash:", "$0.000000000000")
+        self.xmr_daily_value = self.create_stat_label(self.xmr_frame, "Daily Est:", "$0.00")
         self.xmr_real_rate = self.create_stat_label(self.xmr_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.xmr_shares = self.create_stat_label(self.xmr_frame, "Shares:", "0")
         self.xmr_hashes = self.create_stat_label(self.xmr_frame, "Total Hashes:", "0")
+        self.xmr_total_value = self.create_stat_label(self.xmr_frame, "Total Value:", "$0.00")
         
         # RedCode Miner
         self.rdc_miner_frame = self.create_miner_frame(parent, "RedCode (RDC) - $1.00", "#00ff88")
@@ -116,10 +122,13 @@ class MinerDashboardUI:
         self.rdc_hashrate = self.create_stat_label(self.rdc_miner_frame, "Hash Rate:", "0 H/s")
         self.rdc_expected = self.create_stat_label(self.rdc_miner_frame, "Expected Rate:", "0 H/s")
         self.rdc_value = self.create_stat_label(self.rdc_miner_frame, "Mined Value:", "$0.00")
+        self.rdc_value_per_hash = self.create_stat_label(self.rdc_miner_frame, "Value/Hash:", "$0.000000000000")
+        self.rdc_daily_value = self.create_stat_label(self.rdc_miner_frame, "Daily Est:", "$0.00")
         self.rdc_real_rate = self.create_stat_label(self.rdc_miner_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.rdc_quantum_boost = self.create_stat_label(self.rdc_miner_frame, "Quantum Boost:", "NOT ACTIVATED")
         self.rdc_shares = self.create_stat_label(self.rdc_miner_frame, "Shares:", "0")
         self.rdc_hashes = self.create_stat_label(self.rdc_miner_frame, "Total Hashes:", "0")
+        self.rdc_total_value = self.create_stat_label(self.rdc_miner_frame, "Total Value:", "$0.00")
         
     def create_miner_frame(self, parent, title, color):
         """Create a frame for individual miner stats"""
@@ -472,11 +481,18 @@ class MinerDashboardUI:
             # Update Bitcoin stats
             btc = state['miners']['bitcoin']
             btc_simulated = config.get('miners', {}).get('bitcoin', {}).get('simulated', True)
+            btc_hash_tracking = btc.get('hash_value_tracking', {})
+            
             self.btc_price.config(text=f"${btc.get('usd_price', 0.0):,.2f} USD")
             self.btc_mode.config(text="SIMULATION" if btc_simulated else "REAL MINING")
             self.btc_hashrate.config(text=f"{btc['hash_rate']:.2f} H/s")
             self.btc_expected.config(text=f"{btc.get('expected_hashrate', 0):.0f} H/s")
             self.btc_pool.config(text=btc.get('pool_name', 'F2Pool'))
+            
+            # Hash value tracking
+            self.btc_value_per_hash.config(text=btc_hash_tracking.get('value_per_hash_formatted', '$0.000000000000'))
+            self.btc_daily_value.config(text=f"${btc_hash_tracking.get('daily_value_usd', 0.0):.2f}")
+            self.btc_total_value.config(text=f"${btc_hash_tracking.get('total_value_generated_usd', 0.0):.6f}")
             
             if experiment.get('bitcoin_real_network', False):
                 self.btc_real_rate.config(text="ACTIVATED", fg='#3fb950')
@@ -489,11 +505,18 @@ class MinerDashboardUI:
             # Update Monero stats
             xmr = state['miners']['monero']
             xmr_simulated = config.get('miners', {}).get('monero', {}).get('simulated', True)
+            xmr_hash_tracking = xmr.get('hash_value_tracking', {})
+            
             self.xmr_price.config(text=f"${xmr.get('usd_price', 0.0):,.2f} USD")
             self.xmr_mode.config(text="SIMULATION" if xmr_simulated else "REAL MINING")
             self.xmr_hashrate.config(text=f"{xmr['hash_rate']:.2f} H/s")
             self.xmr_expected.config(text=f"{xmr.get('expected_hashrate', 0):.0f} H/s")
             self.xmr_pool.config(text=xmr.get('pool_name', 'SupportXMR'))
+            
+            # Hash value tracking
+            self.xmr_value_per_hash.config(text=xmr_hash_tracking.get('value_per_hash_formatted', '$0.000000000000'))
+            self.xmr_daily_value.config(text=f"${xmr_hash_tracking.get('daily_value_usd', 0.0):.2f}")
+            self.xmr_total_value.config(text=f"${xmr_hash_tracking.get('total_value_generated_usd', 0.0):.6f}")
             
             if experiment.get('monero_real_network', False):
                 self.xmr_real_rate.config(text="ACTIVATED", fg='#3fb950')
@@ -506,6 +529,8 @@ class MinerDashboardUI:
             # Update RedCode stats
             rdc = state['miners']['redcode']
             rdc_simulated = config.get('miners', {}).get('redcode', {}).get('simulated', True)
+            rdc_hash_tracking = rdc.get('hash_value_tracking', {})
+            
             self.rdc_price.config(text=f"${rdc.get('usd_price', 1.0):.2f} USD")
             self.rdc_mode.config(text="SIMULATION" if rdc_simulated else "REAL MINING")
             self.rdc_hashrate.config(text=f"{rdc['hash_rate']:.2f} H/s")
@@ -515,6 +540,11 @@ class MinerDashboardUI:
             balance = state['rdc_coin']['miner_balance']
             rdc_usd_value = balance * rdc.get('usd_price', 1.0)
             self.rdc_value.config(text=f"${rdc_usd_value:,.2f} USD")
+            
+            # Hash value tracking
+            self.rdc_value_per_hash.config(text=rdc_hash_tracking.get('value_per_hash_formatted', '$0.000000000000'))
+            self.rdc_daily_value.config(text=f"${rdc_hash_tracking.get('daily_value_usd', 0.0):.2f}")
+            self.rdc_total_value.config(text=f"${rdc_hash_tracking.get('total_value_generated_usd', 0.0):.6f}")
             
             if experiment.get('redcode_quantum_boost', False):
                 self.rdc_quantum_boost.config(text="ACTIVATED", fg='#3fb950')
