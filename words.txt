@@ -1,0 +1,70 @@
+# Words Data File
+# 
+# This file contains the curated list of words for the 'l' utility.
+# Each line represents one word. Lines starting with # are comments.
+# 
+# Categories of words included:
+# - Positive emotions and concepts
+# - Natural elements
+# - Descriptive adjectives
+# - Abstract concepts
+
+# Core concepts
+love
+light
+life
+loyal
+learn
+legend
+liberty
+
+# Positive emotions
+lovely
+laughter
+luminous
+limitless
+
+# Descriptive words
+brilliant
+elegant
+simple
+essential
+beautiful
+powerful
+peaceful
+playful
+colorful
+meaningful
+gentle
+grateful
+helpful
+wonderful
+delightful
+
+# Ethereal concepts
+celestial
+elemental
+ethereal
+magical
+lyrical
+
+# Natural elements
+crystal
+pearl
+violet
+coral
+olive
+
+# Abstract patterns
+parallel
+level
+spiral
+ritual
+travel
+
+# Conceptual
+liberal
+literal
+logical
+lateral
+plural
