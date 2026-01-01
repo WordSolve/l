@@ -166,12 +166,20 @@ def test_config_file():
             config = json.load(f)
         
         assert 'redcode_coin' in config, "Config should have RDC info"
-        assert 'quantum_dimensions' in config, "Config should have quantum dimensions"
+        assert 'experiment_features' in config, "Config should have experiment features"
         assert 'miners' in config, "Config should have miner config"
         assert 'monero_wallet' in config, "Config should have Monero wallet config"
         
         # Verify RDC config
         assert config['redcode_coin']['total_supply'] == 1000000000
+        
+        # Verify experiment features structure
+        exp_features = config['experiment_features']
+        assert 'real_mining_mode' in exp_features
+        assert 'quantum_5d_strategy' in exp_features
+        assert 'quantum_10d_tornado' in exp_features
+        assert 'quantum_100d_fractal' in exp_features
+        assert 'quantum_1000d_waterfall' in exp_features
         
         print("  ✓ Configuration file valid")
         return True

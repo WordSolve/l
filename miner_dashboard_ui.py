@@ -88,20 +88,27 @@ class MinerDashboardUI:
         label.pack(pady=10)
         
         # Bitcoin Miner
-        self.btc_frame = self.create_miner_frame(parent, "Bitcoin (BTC)", "#f7931a")
+        self.btc_frame = self.create_miner_frame(parent, "Bitcoin (BTC) - SIMULATED", "#f7931a")
+        self.btc_mode = self.create_stat_label(self.btc_frame, "Mode:", "SIMULATION")
         self.btc_hashrate = self.create_stat_label(self.btc_frame, "Hash Rate:", "0 H/s")
+        self.btc_real_rate = self.create_stat_label(self.btc_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.btc_shares = self.create_stat_label(self.btc_frame, "Shares:", "0")
         self.btc_hashes = self.create_stat_label(self.btc_frame, "Total Hashes:", "0")
         
         # Monero Miner
-        self.xmr_frame = self.create_miner_frame(parent, "Monero (XMR)", "#ff6600")
+        self.xmr_frame = self.create_miner_frame(parent, "Monero (XMR) - SIMULATED", "#ff6600")
+        self.xmr_mode = self.create_stat_label(self.xmr_frame, "Mode:", "SIMULATION")
         self.xmr_hashrate = self.create_stat_label(self.xmr_frame, "Hash Rate:", "0 H/s")
+        self.xmr_real_rate = self.create_stat_label(self.xmr_frame, "Real Mining Rate:", "NOT ACTIVATED")
         self.xmr_shares = self.create_stat_label(self.xmr_frame, "Shares:", "0")
         self.xmr_hashes = self.create_stat_label(self.xmr_frame, "Total Hashes:", "0")
         
         # RedCode Miner
-        self.rdc_miner_frame = self.create_miner_frame(parent, "RedCode (RDC) - Quantum", "#00ff88")
+        self.rdc_miner_frame = self.create_miner_frame(parent, "RedCode (RDC) - SIMULATED", "#00ff88")
+        self.rdc_mode = self.create_stat_label(self.rdc_miner_frame, "Mode:", "SIMULATION")
         self.rdc_hashrate = self.create_stat_label(self.rdc_miner_frame, "Hash Rate:", "0 H/s")
+        self.rdc_real_rate = self.create_stat_label(self.rdc_miner_frame, "Real Mining Rate:", "NOT ACTIVATED")
+        self.rdc_quantum_boost = self.create_stat_label(self.rdc_miner_frame, "Quantum Boost:", "NOT ACTIVATED")
         self.rdc_shares = self.create_stat_label(self.rdc_miner_frame, "Shares:", "0")
         self.rdc_hashes = self.create_stat_label(self.rdc_miner_frame, "Total Hashes:", "0")
         
@@ -202,7 +209,7 @@ class MinerDashboardUI:
         """Setup Quantum Computational State panel"""
         label = tk.Label(
             parent,
-            text="🌀 Quantum Computational State",
+            text="🌀 Quantum Experimental Features",
             font=('Arial', 16, 'bold'),
             fg='#a371f7',
             bg='#161b22'
@@ -212,21 +219,69 @@ class MinerDashboardUI:
         quantum_frame = tk.Frame(parent, bg='#0d1117', relief=tk.RIDGE, bd=2)
         quantum_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         
-        # Computational dimensions
-        self.quantum_5d = self.create_quantum_stat(quantum_frame, "5D Strategy:", "0.000000")
-        self.quantum_10d = self.create_quantum_stat(quantum_frame, "10D Tornado Conv:", "0.000000")
-        self.quantum_100d = self.create_quantum_stat(quantum_frame, "100D Fractal Tree:", "0.000000")
-        self.quantum_1000d = self.create_quantum_stat(quantum_frame, "1000D Waterfall:", "0.000000")
+        # Feature activation status
+        features_label = tk.Label(
+            quantum_frame,
+            text="⚠️ EXPERIMENTAL FEATURES (NOT ACTIVATED):",
+            font=('Arial', 10, 'bold'),
+            fg='#f85149',
+            bg='#0d1117'
+        )
+        features_label.pack(pady=5)
+        
+        # Computational dimensions with activation status
+        self.quantum_5d = self.create_quantum_stat(quantum_frame, "5D Strategy:", "NOT ACTIVATED")
+        self.quantum_5d_status = self.create_activation_status(quantum_frame, "Set quantum_5d_strategy=true to enable")
+        
+        self.quantum_10d = self.create_quantum_stat(quantum_frame, "10D Tornado Conv:", "NOT ACTIVATED")
+        self.quantum_10d_status = self.create_activation_status(quantum_frame, "Set quantum_10d_tornado=true to enable")
+        
+        self.quantum_100d = self.create_quantum_stat(quantum_frame, "100D Fractal Tree:", "NOT ACTIVATED")
+        self.quantum_100d_status = self.create_activation_status(quantum_frame, "Set quantum_100d_fractal=true to enable")
+        
+        self.quantum_1000d = self.create_quantum_stat(quantum_frame, "1000D Waterfall:", "NOT ACTIVATED")
+        self.quantum_1000d_status = self.create_activation_status(quantum_frame, "Set quantum_1000d_waterfall=true to enable")
+        
+        # Real mining mode status
+        separator = tk.Frame(quantum_frame, bg='#8b949e', height=2)
+        separator.pack(fill=tk.X, padx=10, pady=10)
+        
+        real_mining_label = tk.Label(
+            quantum_frame,
+            text="💡 REAL MINING MODE:",
+            font=('Arial', 10, 'bold'),
+            fg='#ffa657',
+            bg='#0d1117'
+        )
+        real_mining_label.pack(pady=5)
+        
+        self.real_mining_status = self.create_activation_status(
+            quantum_frame, 
+            "Set real_mining_mode=true in config.json to activate"
+        )
         
         # AI Cypher Status
         cypher_label = tk.Label(
             quantum_frame,
-            text="🔐 AI-to-AI Cypher: ACTIVE",
+            text="🔐 AI-to-AI Cypher: ACTIVE (Always On)",
             font=('Arial', 10, 'bold'),
             fg='#58a6ff',
             bg='#0d1117'
         )
         cypher_label.pack(pady=10)
+        
+    def create_activation_status(self, parent, text):
+        """Create an activation status label"""
+        label = tk.Label(
+            parent,
+            text=f"    → {text}",
+            font=('Arial', 8),
+            fg='#8b949e',
+            bg='#0d1117',
+            anchor='w'
+        )
+        label.pack(fill=tk.X, padx=10, pady=2)
+        return label
         
     def create_quantum_stat(self, parent, label_text, value_text):
         """Create quantum state stat display"""
@@ -345,22 +400,54 @@ class MinerDashboardUI:
         """Update UI with current mining state"""
         try:
             state = self.core.get_dashboard_state()
+            config = state.get('config', {})
+            experiment = config.get('experiment_features', {})
             
             # Update Bitcoin stats
             btc = state['miners']['bitcoin']
+            btc_simulated = config.get('miners', {}).get('bitcoin', {}).get('simulated', True)
+            self.btc_mode.config(text="SIMULATION" if btc_simulated else "REAL MINING")
             self.btc_hashrate.config(text=f"{btc['hash_rate']:.2f} H/s")
+            
+            if experiment.get('bitcoin_real_network', False):
+                self.btc_real_rate.config(text="ACTIVATED", fg='#3fb950')
+            else:
+                self.btc_real_rate.config(text="NOT ACTIVATED", fg='#f85149')
+            
             self.btc_shares.config(text=str(btc['shares_found']))
             self.btc_hashes.config(text=f"{btc['total_hashes']:,}")
             
             # Update Monero stats
             xmr = state['miners']['monero']
+            xmr_simulated = config.get('miners', {}).get('monero', {}).get('simulated', True)
+            self.xmr_mode.config(text="SIMULATION" if xmr_simulated else "REAL MINING")
             self.xmr_hashrate.config(text=f"{xmr['hash_rate']:.2f} H/s")
+            
+            if experiment.get('monero_real_network', False):
+                self.xmr_real_rate.config(text="ACTIVATED", fg='#3fb950')
+            else:
+                self.xmr_real_rate.config(text="NOT ACTIVATED", fg='#f85149')
+                
             self.xmr_shares.config(text=str(xmr['shares_found']))
             self.xmr_hashes.config(text=f"{xmr['total_hashes']:,}")
             
             # Update RedCode stats
             rdc = state['miners']['redcode']
+            rdc_simulated = config.get('miners', {}).get('redcode', {}).get('simulated', True)
+            self.rdc_mode.config(text="SIMULATION" if rdc_simulated else "REAL MINING")
             self.rdc_hashrate.config(text=f"{rdc['hash_rate']:.2f} H/s")
+            
+            if experiment.get('redcode_quantum_boost', False):
+                self.rdc_quantum_boost.config(text="ACTIVATED", fg='#3fb950')
+            else:
+                self.rdc_quantum_boost.config(text="NOT ACTIVATED", fg='#f85149')
+                
+            # Show real rate if activated
+            if experiment.get('real_mining_mode', False):
+                self.rdc_real_rate.config(text="ACTIVATED", fg='#3fb950')
+            else:
+                self.rdc_real_rate.config(text="NOT ACTIVATED", fg='#f85149')
+                
             self.rdc_shares.config(text=str(rdc['shares_found']))
             self.rdc_hashes.config(text=f"{rdc['total_hashes']:,}")
             
@@ -368,12 +455,48 @@ class MinerDashboardUI:
             balance = state['rdc_coin']['miner_balance']
             self.balance_value.config(text=f"{balance:,.2f} RDC")
             
-            # Update quantum state
+            # Update quantum state with activation status
             quantum = state['quantum_state']
-            self.quantum_5d.config(text=f"{quantum['5d']:.6f}")
-            self.quantum_10d.config(text=f"{quantum['10d']:.6f}")
-            self.quantum_100d.config(text=f"{quantum['100d']:.6f}")
-            self.quantum_1000d.config(text=f"{quantum['1000d']:.6f}")
+            
+            if experiment.get('quantum_5d_strategy', False):
+                self.quantum_5d.config(text=f"ACTIVE: {quantum['5d']:.6f}", fg='#3fb950')
+                self.quantum_5d_status.config(text="    → Quantum 5D Strategy is ENABLED", fg='#3fb950')
+            else:
+                self.quantum_5d.config(text="NOT ACTIVATED", fg='#f85149')
+                self.quantum_5d_status.config(text="    → Set quantum_5d_strategy=true to enable", fg='#8b949e')
+            
+            if experiment.get('quantum_10d_tornado', False):
+                self.quantum_10d.config(text=f"ACTIVE: {quantum['10d']:.6f}", fg='#3fb950')
+                self.quantum_10d_status.config(text="    → Quantum 10D Tornado is ENABLED", fg='#3fb950')
+            else:
+                self.quantum_10d.config(text="NOT ACTIVATED", fg='#f85149')
+                self.quantum_10d_status.config(text="    → Set quantum_10d_tornado=true to enable", fg='#8b949e')
+            
+            if experiment.get('quantum_100d_fractal', False):
+                self.quantum_100d.config(text=f"ACTIVE: {quantum['100d']:.6f}", fg='#3fb950')
+                self.quantum_100d_status.config(text="    → Quantum 100D Fractal is ENABLED", fg='#3fb950')
+            else:
+                self.quantum_100d.config(text="NOT ACTIVATED", fg='#f85149')
+                self.quantum_100d_status.config(text="    → Set quantum_100d_fractal=true to enable", fg='#8b949e')
+            
+            if experiment.get('quantum_1000d_waterfall', False):
+                self.quantum_1000d.config(text=f"ACTIVE: {quantum['1000d']:.6f}", fg='#3fb950')
+                self.quantum_1000d_status.config(text="    → Quantum 1000D Waterfall is ENABLED", fg='#3fb950')
+            else:
+                self.quantum_1000d.config(text="NOT ACTIVATED", fg='#f85149')
+                self.quantum_1000d_status.config(text="    → Set quantum_1000d_waterfall=true to enable", fg='#8b949e')
+            
+            # Update real mining mode status
+            if experiment.get('real_mining_mode', False):
+                self.real_mining_status.config(
+                    text="    → Real Mining Mode is ENABLED - Connect to actual pools",
+                    fg='#3fb950'
+                )
+            else:
+                self.real_mining_status.config(
+                    text="    → Set real_mining_mode=true in config.json to activate",
+                    fg='#8b949e'
+                )
             
         except Exception as e:
             print(f"UI update error: {e}")

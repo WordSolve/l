@@ -5,45 +5,51 @@
     "total_supply": 1000000000,
     "decimals": 8
   },
-  "quantum_dimensions": {
-    "computational_5d": true,
-    "computational_10d": true,
-    "computational_100d": true,
-    "computational_1000d": true,
-    "tornado_convergence_10d": true,
-    "tornado_convergence_100d": true
+  "experiment_features": {
+    "real_mining_mode": false,
+    "quantum_5d_strategy": false,
+    "quantum_10d_tornado": false,
+    "quantum_100d_fractal": false,
+    "quantum_1000d_waterfall": false,
+    "bitcoin_real_network": false,
+    "monero_real_network": false,
+    "redcode_quantum_boost": false
   },
   "miners": {
     "bitcoin": {
       "enabled": true,
-      "default_rate": 0.0,
-      "computational_multiplier": 1.0
+      "simulated": true,
+      "real_pool_url": "",
+      "real_wallet_address": ""
     },
     "monero": {
       "enabled": true,
-      "default_rate": 0.0,
-      "computational_multiplier": 1.0
+      "simulated": true,
+      "real_pool_url": "",
+      "real_wallet_address": ""
     },
     "redcode": {
       "enabled": true,
-      "default_rate": 0.0,
-      "computational_multiplier": 1.0,
-      "quantum_enabled": true
+      "simulated": true,
+      "quantum_boost_active": false
     }
   },
   "fractal_tree": {
     "dimensions": 100,
-    "hash_multiplier": 1.0
+    "hash_multiplier": 1.0,
+    "activated": false
   },
   "waterfall_technology": {
     "dimensions": 1000,
-    "flow_rate": 1.0
+    "flow_rate": 1.0,
+    "activated": false
   },
   "monero_wallet": {
     "gui_connection": {
       "host": "127.0.0.1",
       "port": 18081,
-      "rpc_port": 18082
+      "rpc_port": 18082,
+      "connected": false
     }
   }
 }

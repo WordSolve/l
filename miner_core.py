@@ -388,7 +388,8 @@ class MinerDashboardCore:
                 }
                 for name, miner in self.miners.items()
             },
-            'running': self.running
+            'running': self.running,
+            'config': self.config
         }
 
 
