@@ -305,7 +305,10 @@ class MinerDashboardCore:
     def _load_config(self) -> dict:
         """Load configuration from config.json"""
         try:
-            with open('/home/runner/work/l/l/config.json', 'r') as f:
+            # Use relative path from current working directory
+            import os
+            config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+            with open(config_path, 'r') as f:
                 return json.load(f)
         except:
             return {}
