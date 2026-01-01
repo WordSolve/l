@@ -21,10 +21,13 @@ class LivePriceFetcher:
     
     def __init__(self):
         self.last_update = None
-        # Use recent market prices as fallback (updated periodically)
+        # Use current market prices as fallback
+        # Prices updated based on market data (2026-01-01)
+        # User reported: BTC £65,065.39, XMR £318.67 (GBP)
+        # Converting at ~1.27 USD/GBP rate
         self.cached_prices = {
-            'bitcoin': 97000.0,  # Approximate current BTC price
-            'monero': 185.0      # Approximate current XMR price
+            'bitcoin': 82633.0,   # ~£65,065 GBP → $82,633 USD
+            'monero': 405.0       # ~£318.67 GBP → $405 USD
         }
         self.cache_duration = 60  # Cache for 60 seconds
         self.api_enabled = True  # Try APIs first
@@ -188,8 +191,8 @@ class LivePriceFetcher:
             "- CoinMarketCap API: https://coinmarketcap.com\n"
             f"Last Updated: {self.last_update.strftime('%Y-%m-%d %H:%M:%S') if self.last_update else 'Using fallback prices'}\n"
             f"Cache Duration: {self.cache_duration} seconds\n"
-            f"Fallback BTC: ${self.cached_prices['bitcoin']:,.2f} USD\n"
-            f"Fallback XMR: ${self.cached_prices['monero']:,.2f} USD"
+            f"Current BTC: ${self.cached_prices['bitcoin']:,.2f} USD (£65,065 GBP)\n"
+            f"Current XMR: ${self.cached_prices['monero']:,.2f} USD (£318.67 GBP)"
         )
 
 
@@ -216,5 +219,8 @@ if __name__ == "__main__":
     
     print("\n" + fetcher.get_price_sources_info())
     print("\nTest completed successfully!")
-    print("\nNote: If API access is blocked, fallback prices are used.")
+    print("\nNote: Prices updated to current market rates (2026-01-01)")
+    print("BTC: £65,065.39 GBP ≈ $82,633 USD")
+    print("XMR: £318.67 GBP ≈ $405 USD")
+    print("If API access is blocked, fallback prices are used.")
     print("In production with network access, live prices will be fetched.")
