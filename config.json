@@ -122,6 +122,38 @@
       "port": 18081,
       "rpc_port": 18082,
       "connected": false
+    },
+    "daemon_connection": {
+      "host": "127.0.0.1",
+      "port": 18081,
+      "enabled": false
+    },
+    "ghostrider": {
+      "enabled": false,
+      "algorithm": "GhostRider",
+      "note": "Experimental GhostRider algorithm support"
+    }
+  },
+  "tari_wallet": {
+    "cli_connection": {
+      "enabled": false,
+      "cli_path": "tari_console_wallet",
+      "base_node": "127.0.0.1:18142",
+      "wallet_address": ""
+    },
+    "one_sided_payments": {
+      "enabled": false,
+      "auto_flow": false,
+      "flow_threshold": 0.1,
+      "note": "Automatic flow pushing from mining to Tari wallet"
+    }
+  },
+  "flow_bridge": {
+    "enabled": false,
+    "monero_to_tari": {
+      "enabled": false,
+      "auto_transfer": false,
+      "transfer_threshold": 0.5
     }
   }
 }

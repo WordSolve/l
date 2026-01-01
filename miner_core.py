@@ -11,6 +11,14 @@ import hashlib
 from datetime import datetime
 from price_fetcher import LivePriceFetcher
 
+# Import wallet integration modules
+try:
+    from monero_integration import MoneroGUIConnector, TariCLIConnector, FlowBridge
+    INTEGRATIONS_AVAILABLE = True
+except ImportError:
+    INTEGRATIONS_AVAILABLE = False
+    print("Warning: Wallet integration modules not available")
+
 
 class QuantumComputationalEngine:
     """
@@ -319,6 +327,35 @@ class MinerDashboardCore:
         # Initialize live price fetcher
         self.price_fetcher = LivePriceFetcher()
         
+        # Initialize wallet integrations if enabled
+        self.monero_gui = None
+        self.tari_cli = None
+        self.flow_bridge = None
+        
+        if INTEGRATIONS_AVAILABLE:
+            # Initialize Monero GUI connector if enabled in config
+            monero_config = self.config.get('monero_wallet', {}).get('gui_connection', {})
+            if monero_config.get('enabled', False):
+                self.monero_gui = MoneroGUIConnector(
+                    host=monero_config.get('host', '127.0.0.1'),
+                    wallet_port=monero_config.get('rpc_port', 18082),
+                    daemon_port=monero_config.get('port', 18081)
+                )
+            
+            # Initialize Tari CLI connector if enabled in config
+            tari_config = self.config.get('tari_wallet', {}).get('cli_connection', {})
+            if tari_config.get('enabled', False):
+                self.tari_cli = TariCLIConnector(
+                    cli_path=tari_config.get('cli_path', 'tari_console_wallet'),
+                    base_node=tari_config.get('base_node', '127.0.0.1:18142')
+                )
+            
+            # Initialize flow bridge if both are enabled
+            if self.monero_gui and self.tari_cli:
+                flow_config = self.config.get('flow_bridge', {})
+                if flow_config.get('enabled', False):
+                    self.flow_bridge = FlowBridge(self.monero_gui, self.tari_cli)
+        
         # Get expected hash rates from config
         btc_hashrate = self.config.get('miners', {}).get('bitcoin', {}).get('expected_hashrate', 25000000)
         xmr_hashrate = self.config.get('miners', {}).get('monero', {}).get('expected_hashrate', 5000)
@@ -358,6 +395,68 @@ class MinerDashboardCore:
                 self.monero_miner.set_price(market_data['monero'].get('usd_price', 165.0))
             if 'redcode' in market_data:
                 self.redcode_miner.set_price(market_data['redcode'].get('usd_price', 1.0))
+    
+    def connect_monero_gui(self) -> Tuple[bool, str]:
+        """Connect to Monero GUI wallet and daemon"""
+        if not self.monero_gui:
+            return False, "Monero GUI connector not initialized"
+        
+        # Connect to wallet
+        wallet_success, wallet_msg = self.monero_gui.connect_wallet()
+        
+        # Connect to daemon
+        daemon_success, daemon_msg = self.monero_gui.connect_daemon()
+        
+        # Enable GhostRider if configured
+        ghostrider_config = self.config.get('monero_wallet', {}).get('ghostrider', {})
+        if ghostrider_config.get('enabled', False):
+            gr_success, gr_msg = self.monero_gui.enable_ghostrider()
+            return wallet_success, f"Wallet: {wallet_msg}\nDaemon: {daemon_msg}\nGhostRider: {gr_msg}"
+        
+        return wallet_success, f"Wallet: {wallet_msg}\nDaemon: {daemon_msg}"
+    
+    def connect_tari_cli(self) -> Tuple[bool, str]:
+        """Connect to Tari CLI wallet"""
+        if not self.tari_cli:
+            return False, "Tari CLI connector not initialized"
+        
+        return self.tari_cli.connect()
+    
+    def push_flow_to_tari(self, amount: float, source: str = "monero") -> Tuple[bool, str]:
+        """Push mining rewards to Tari wallet via one-sided payment"""
+        if not self.tari_cli:
+            return False, "Tari CLI connector not initialized"
+        
+        if not self.tari_cli.connected:
+            return False, "Tari CLI wallet not connected"
+        
+        return self.tari_cli.push_flow(amount, source)
+    
+    def transfer_monero_to_tari(self, xmr_amount: float) -> Tuple[bool, str]:
+        """Transfer Monero balance to Tari using flow bridge"""
+        if not self.flow_bridge:
+            return False, "Flow bridge not initialized"
+        
+        return self.flow_bridge.transfer_monero_to_tari(xmr_amount)
+    
+    def get_wallet_status(self) -> Dict:
+        """Get status of all wallet connections"""
+        status = {
+            "monero_gui": None,
+            "tari_cli": None,
+            "flow_bridge": None
+        }
+        
+        if self.monero_gui:
+            status["monero_gui"] = self.monero_gui.get_connection_status()
+        
+        if self.tari_cli:
+            status["tari_cli"] = self.tari_cli.get_connection_status()
+        
+        if self.flow_bridge:
+            status["flow_bridge"] = self.flow_bridge.get_bridge_status()
+        
+        return status
         
     def _load_config(self) -> dict:
         """Load configuration from config.json"""
@@ -467,7 +566,8 @@ class MinerDashboardCore:
                 'last_update': self.price_fetcher.last_update.isoformat() if self.price_fetcher.last_update else None,
                 'sources': ['CoinMarketCap', 'Coinbase', 'Binance'],
                 'cache_duration': self.price_fetcher.cache_duration
-            }
+            },
+            'wallet_integrations': self.get_wallet_status()
         }
 
 
